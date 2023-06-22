@@ -33,7 +33,7 @@ for(tree.size in 2**c(8)) {
       for(p01 in c(0)) {                        # false positive observation rate (0 for us)
         for(p10 in c(0,0.5,0.9,0.95)) {         # false negative observation rate
           cat(paste(c(tree.size, mean.events, model.correlated, p01, p10, "\n"), collapse=" "))
-          for(this.expt in 1:10) {
+          for(this.expt in 1:20) {
             expt = expt+1
             # get root reference, and add it to a "to-do" list for simulating traits
             my.root = getRoot(my.tree)
@@ -133,7 +133,7 @@ g.1 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
   facet_grid(mean.events~tree.size) +
-  theme_classic() + xlab("True effect") + ylab("log(-log(p)) PGLS") + labs(color="Obs error")
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLS") + labs(color="Obs error")
 
 # naive correlation performance
 g.2 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(basic.pval)), color=noise.label)) + 
@@ -141,7 +141,7 @@ g.2 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
   facet_grid(mean.events~tree.size) + 
-  theme_classic() + xlab("True effect") + ylab("log(-log(p)) naive") + labs(color="Obs error")
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) naive") + labs(color="Obs error")
 
 # plot both
 grid.arrange(g.1, g.2, nrow=1)
@@ -157,7 +157,7 @@ g.sub = ggplot(pvals[pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.c
   geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) + 
-  theme_classic() + xlab("True effect") + ylab("log(-log(p)) naive") + labs(color="Obs error")
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) naive") + labs(color="Obs error")
 
 sf=2
 png("pgls-high-obs-noise-subpanel.png", width=300*sf, height=300*sf, res=72*sf)

@@ -30,7 +30,7 @@ for(tree.size in 2**c(4, 5, 6)) {
       for(p01 in c(0)) {                        # false positive observation rate (0 for us)
         for(p10 in c(0,0.1,0.25,0.5)) {         # false negative observation rate
           cat(paste(c(tree.size, mean.events, model.correlated, p01, p10, "\n"), collapse=" "))
-          for(this.expt in 1:10) {
+          for(this.expt in 1:20) {
             expt = expt+1
             # get root reference, and add it to a "to-do" list for simulating traits
             my.root = getRoot(my.tree)
@@ -296,7 +296,7 @@ g.1 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
   facet_grid(mean.events~tree.size) + 
-  theme_classic() + xlab("True effect") + ylab("log(-log(p)) PGLS") + labs(color="Obs error")
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLS") + labs(color="Obs error")
 
 # naive correlation results
 g.2 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(basic.pval)), color=noise.label)) + 
@@ -304,7 +304,7 @@ g.2 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
   facet_grid(mean.events~tree.size) +
-  theme_classic() + xlab("True effect") + ylab("log(-log(p)) naive") + labs(color="Obs error")
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) naive") + labs(color="Obs error")
 
 # relative comparison via Wilcoxon
 g.3 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(wilcox.pval)), color=noise.label)) + 
@@ -312,7 +312,7 @@ g.3 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
   facet_grid(mean.events~tree.size) + 
-  theme_classic() + xlab("True effect") + ylab("log(-log(p)) relatives-Wilcoxon") + labs(color="Obs error")
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) relatives-Wilcoxon") + labs(color="Obs error")
 
 # relative comparison via bootstrap
 g.4 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(boot.pval)), color=noise.label)) + 
@@ -320,7 +320,7 @@ g.4 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
   facet_grid(mean.events~tree.size) + 
-  theme_classic() + xlab("True effect") + ylab("log(-log(p)) relatives-Wilcoxon") + labs(color="Obs error")
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) relatives-Wilcoxon") + labs(color="Obs error")
 
 # plot all together
 grid.arrange(g.1, g.2, g.3, g.4, nrow=2)
@@ -340,13 +340,3 @@ png("method-comparison-obs.png", width=600, height=600)
 ggplot(obs.stats, aes(x = mean.events, y=obs1/(obs0+obs1))) + geom_violin() + facet_grid(mean.events ~ tree.size)
 dev.off()
 
-###########
-
-mean(obs.stats$true1[pvals$mean.events==2])
-mean(obs.stats$true1[pvals$mean.events==4])
-mean(obs.stats$true1[pvals$mean.events==8])
-
-obs.stats$p10 = pvals$p10
-obs.stats$p01 = pvals$p01
-
-ggplot(obs.stats[obs.stats$p01==0 & pvals$tree.size==64,], aes(x=true1, y=obs1, color=factor(p10))) + geom_point()
