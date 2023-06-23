@@ -1,0 +1,99 @@
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd" version="0.10" xml:lang="en">
+  <siteinfo>
+    <sitename>Wikipedia</sitename>
+    <dbname>enwiki</dbname>
+    <base>https://en.wikipedia.org/wiki/Main_Page</base>
+    <generator>MediaWiki 1.37.0-wmf.20</generator>
+    <case>first-letter</case>
+    <namespaces>
+      <namespace key="-2" case="first-letter">Media</namespace>
+      <namespace key="-1" case="first-letter">Special</namespace>
+      <namespace key="0" case="first-letter" />
+      <namespace key="1" case="first-letter">Talk</namespace>
+      <namespace key="2" case="first-letter">User</namespace>
+      <namespace key="3" case="first-letter">User talk</namespace>
+      <namespace key="4" case="first-letter">Wikipedia</namespace>
+      <namespace key="5" case="first-letter">Wikipedia talk</namespace>
+      <namespace key="6" case="first-letter">File</namespace>
+      <namespace key="7" case="first-letter">File talk</namespace>
+      <namespace key="8" case="first-letter">MediaWiki</namespace>
+      <namespace key="9" case="first-letter">MediaWiki talk</namespace>
+      <namespace key="10" case="first-letter">Template</namespace>
+      <namespace key="11" case="first-letter">Template talk</namespace>
+      <namespace key="12" case="first-letter">Help</namespace>
+      <namespace key="13" case="first-letter">Help talk</namespace>
+      <namespace key="14" case="first-letter">Category</namespace>
+      <namespace key="15" case="first-letter">Category talk</namespace>
+      <namespace key="100" case="first-letter">Portal</namespace>
+      <namespace key="101" case="first-letter">Portal talk</namespace>
+      <namespace key="118" case="first-letter">Draft</namespace>
+      <namespace key="119" case="first-letter">Draft talk</namespace>
+      <namespace key="710" case="first-letter">TimedText</namespace>
+      <namespace key="711" case="first-letter">TimedText talk</namespace>
+      <namespace key="828" case="first-letter">Module</namespace>
+      <namespace key="829" case="first-letter">Module talk</namespace>
+      <namespace key="2300" case="first-letter">Gadget</namespace>
+      <namespace key="2301" case="first-letter">Gadget talk</namespace>
+      <namespace key="2302" case="case-sensitive">Gadget definition</namespace>
+      <namespace key="2303" case="case-sensitive">Gadget definition talk</namespace>
+    </namespaces>
+  </siteinfo>
+  <page>
+    <title>Parasitaxus</title>
+    <ns>0</ns>
+    <id>2652817</id>
+    <revision>
+      <id>1029699877</id>
+      <parentid>1018541651</parentid>
+      <timestamp>2021-06-21T14:17:03Z</timestamp>
+      <contributor>
+        <username>Ira Leviton</username>
+        <id>25046916</id>
+      </contributor>
+      <minor/>
+      <comment>Replaced html code with wikicode.  Please see [[Category:Articles with HTML markup]].</comment>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="4677" xml:space="preserve">{{Short description|Species of parasitic conifer from New Caledonia}}
+{{Speciesbox
+| image = Parasitaxus usta imported from iNaturalist photo 55058052 on 1 December 2019.jpg
+| status = VU
+| status_system = IUCN3.1
+| status_ref = &lt;ref name=iucn&gt;{{Cite journal | author = Thomas, P. | title = ''Parasitaxus usta'' | journal = [[The IUCN Red List of Threatened Species]] | volume = 2010 | page = e.T31002A9597883 | publisher = [[IUCN]] | date = 2010 | url = http://www.iucnredlist.org/details/31002/0 | doi = 10.2305/IUCN.UK.2010-3.RLTS.T31002A9597883.en | access-date = 12 December 2017}}&lt;/ref&gt;
+| genus = Parasitaxus
+| parent_authority = [[de Laub.]]
+| species = usta
+| authority = ([[Eugène Vieillard|Vieill.]]) [[de Laub.]]
+| synonyms = * ''Podocarpus ustus''
+* ''Dacrydium ustum''
+* ''Nageia usta''
+* ''Parasitaxus ustus''
+}}
+
+'''''Parasitaxus usta''''' is a rare [[species]] of [[conifer]] of the [[family (biology)|family]] [[Podocarpaceae]], and the sole species of the [[genus]] '''''Parasitaxus'''''. It is a woody [[shrub]] up to 1.8 m found only in the remote, densely forested areas of [[New Caledonia]], first discovered and described by [[Eugène Vieillard|Vieillard]] in 1861.
+
+It is generally mentioned that ''Parasitaxus usta'' is the only known [[parasitic]] [[gymnosperm]]. The species remarkably lacks [[root]]s and is always found attached to the roots of ''[[Falcatifolium taxoides]]'' (another member of the Podocarpaceae). However, the question is still left open, as the plant is in any case not a [[haustorium|haustorial]] parasite, which is usually the case with [[angiosperm]]s. Certain experts therefore consider the plant as a  [[myco-heterotrophy|myco-heterotroph]].
+
+Molecular phylogenetic analysis also suggest affinities between ''Parasitaxus'' and the genera ''[[Manoao]]'' ([[New Zealand]]) and ''[[Lagarostrobos]]'' ([[Tasmania]]).&lt;ref&gt;Sinclair, W. T., R. R. Mill, M. F. Gardner, P. Woltz, T. Jaffré, J. Preston, M. L. Hollingsworth, A. Ponge, and M. Möller. (2002) Evolutionary Relationships of the New Caledonian Heterotrophic Conifer Parasitaxus Ustus (Podocarpaceae), Inferred from Chloroplast trnL-F Intron/Spacer and Nuclear ITS2 Sequences. Plant Systematics and Evolution 233: 79–104.&lt;/ref&gt; Parasitaxus has been shown to contain high levels of chlorophyll. &lt;ref&gt;{{cite journal |last1=Feild |first1=T.S |last2=Brodribb |first2=T.J. |title=A unique mode of parasitism in the conifer coral tree ''Parasitaxus ustus'' (Podocarpaceae) |journal=Plant Cell Env. |date=2005 |volume=28 |issue=10 |pages=1316–1325 |doi=10.1111/j.1365-3040.2005.01378.x |doi-access=free }}&lt;/ref&gt; However, a genome analysis shows that many genes for photosynthesis are missing from the parasite's plastid genome,&lt;ref&gt;{{cite journal |last1=Qu |first1=X-J. |last2=Fan |first2=S-J. |last3=Wicke |first3=S. |last4=Yi |first4=T-S. |title=Plastome reduction in the only parasitic gymnosperm ''Parasitaxus'' is due to losses of photosynthesis but not housekeeping genes and apparently involves the secondary gain of a large inverted repeat |journal=Genome Biology and Evolution |date=2019 |volume=11 |issue=10 |pages=2789–2796 |doi=10.1093/gbe/evz187 |pmid=31504501 |pmc=6786476 |url=|doi-access=free }}&lt;/ref&gt; strongly suggesting that ''Parasitaxus'' completely depends on its host for survival. 
+[[File:Parasitaxus usta imported from iNaturalist photo 55058172 on 1 December 2019.jpg|left|thumb|Glaucous white seed cones.]] 
+The species was first described as ''Dacrydium ustum'' Vieill.; other synonyms include ''Podocarpus ustus'' (Vieill.) [[Brongn.]] &amp; [[Jean Antoine Arthur Gris|Gris]], and ''Nageia usta'' (Vieill.) [[Otto Kuntze|Kuntze]]. The name is often cited as ''Parasitaxus ustus'', but this is grammatically incorrect, as, according to Latin, the genus name ''Parasitaxus'' is (like ''Taxus'') gender-feminine, with which the species name's gender must agree (Nickrent 2006).  The scientific name translates as "Burnt Parasitic Yew."
+
+==Etymology==
+''Usta'' means 'parched'.&lt;ref name="gledhill"&gt;Gledhill, David (2008). "The Names of Plants". Cambridge University Press. {{ISBN|9780521866453}} (hardback), {{ISBN|9780521685535}} (paperback).  pp 395&lt;/ref&gt;
+
+==References==
+{{Reflist}}
+*[http://www.conifers.org/po/pa/index.htm Gymnosperm Database: ''Parasitaxus usta'']
+*[[Daniel Lee Nickrent|Nickrent, D.]] (2006). [http://www.parasiticplants.siu.edu/parasitaxus.html Parasitic Plants website: Is ''Parasitaxus '' Parasitic?].
+
+{{Taxonbar|from=Q13077228|from2=Q133097}}
+
+[[Category:Endemic flora of New Caledonia]]
+[[Category:Near threatened plants]]
+[[Category:Monotypic conifer genera]]
+[[Category:Podocarpaceae genera]]
+[[Category:Podocarpaceae]]</text>
+      <sha1>dx1sf5icejewlskw4n421eu7vdprsq3</sha1>
+    </revision>
+  </page>
+</mediawiki>
