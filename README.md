@@ -23,11 +23,7 @@ Organelle DNA
 Assisted manual parsing of Wikipedia pages
 -----
 
-`wiki-html.py` searches an XML dump (for example, from Wikipedia's Special:Export https://en.wikipedia.org/wiki/Special:Export ) for a given regular expression, and produces an HTML file designed to assist manual parsing of all the entries matching that pattern. The HTML page consists of the snippets of text surrounding each pattern match, labelled by page name. Links and other interesting text are accompanied by checkboxes, which when clicked populate a text box on the right-hand side of the page with the text immediately before the checkbox. Hence clicking the box in
-
-_"H. derbyanus [box]"_
-
-would insert the text _"H. derbyanus"_ into the accompanying text box. Of course, text can also be manually entered into these boxes.
+`wiki-html.py` searches an XML dump (for example, from Wikipedia's Special:Export https://en.wikipedia.org/wiki/Special:Export ) for a given regular expression, and produces an HTML file designed to assist manual parsing of all the entries matching that pattern. The HTML page consists of the snippets of text surrounding each pattern match, labelled by page name. Links and other interesting text are accompanied by checkboxes, which when clicked populate a text box on the right-hand side of the page with the text immediately before the checkbox. Of course, text can also be manually entered into these boxes.
 
 At the bottom of the HTML page there is a summary button which compiles all the text from other boxes into a single list.
 
