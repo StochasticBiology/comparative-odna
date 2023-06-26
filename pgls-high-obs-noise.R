@@ -66,7 +66,8 @@ for(tree.size in 2**c(8)) {
               # update to-do list
               to.do = new.to.do
             }
-
+            
+            
             # let's use obs.x to model our understanding of the predictor variable
             # this imposes false-positive and false-negative observation probabilities
             df$obs.x = df$x
@@ -79,7 +80,8 @@ for(tree.size in 2**c(8)) {
 
             # pull just the tip observations from the tree
             tip.df = df[df$ref <= length(my.tree$tip.label),]
-
+            tip.df$y[tip.df$y < 0] = 0
+            
             # record observation stats (how many real/observed positives/negatives)
             obs.stats = rbind(obs.stats, data.frame(expt=expt, true0=length(which(tip.df$x == 0)),
                                                     true1=length(which(tip.df$x == 1)),
@@ -96,15 +98,18 @@ for(tree.size in 2**c(8)) {
             basic.pval = basic.test$p.value
 
             ####### PGLS under a Brownian model for correlations
-            my.correlation = corBrownian(phy=my.tree, form=~label)
-            if(all(tip.df$obs.x == 0) | all(tip.df$obs.x == 1)) { 
-              pgls.pval = NA 
+            if(all(tip.df$obs.x == 0) | all(tip.df$obs.x == 1) | all(tip.df$y == 0) |
+               (length(which(tip.df$y[tip.df$obs.x==1] > 0)) < 2) |
+               (length(which(tip.df$y[tip.df$obs.x==0] > 0)) < 2)) { 
+              pgls.pval =  NA 
             } else {
-              pgls.mod = gls(y~obs.x, correlation=my.correlation, data=tip.df, method="ML", na.action=na.omit)
-              gls.mod = gls(y~obs.x, data=tip.df, method="ML", na.action=na.omit)
-              pgls.coef = coef(pgls.mod)[2]
-              pgls.pval = anova(pgls.mod)$'p-value'[2]
-              pgls.pval
+              my.correlation = corBrownian(phy=my.tree, form=~label)
+             
+                pgls.mod = gls(y~obs.x, correlation=my.correlation, data=tip.df, method="ML", na.action=na.omit)
+                gls.mod = gls(y~obs.x, data=tip.df, method="ML", na.action=na.omit)
+                pgls.coef = coef(pgls.mod)[2]
+                pgls.pval = anova(pgls.mod)$'p-value'[2]
+          
             }
 
             # store p-values in a data frame

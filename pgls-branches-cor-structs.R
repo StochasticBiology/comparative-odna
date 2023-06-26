@@ -22,7 +22,7 @@ corstructnames = c("Brownian", "Pagel", "Grafen", "Martins", "Blomberg")
 # we'll only look at one tree size here -- this structure is from other versions of the code
 for(tree.size in 2**c(6)) {
   # loop through our model parameters
-  for(death in c(0.1,1)) {                     # death rate used in constructing phylogeny -- changes topology
+  for(death in c(0,0.1,1)) {                     # death rate used in constructing phylogeny -- changes topology
     for(mean.events in c( 8)) {           # average number of predictor 0->1 transitions 
       for(model.correlated in c(0,10,20)) {  # strength of predictor-response effect
         for(p01 in c(0)) {                     # false positive observation rate (0 for us)
@@ -32,11 +32,18 @@ for(tree.size in 2**c(6)) {
           
             for(this.expt in 1:20) {
               # create random phylogeny with 2^n nodes from birth-death process parameterised as above
+              if(death == 0) {
+                my.tree = stree(tree.size, "balanced")
+                my.tree$node.label = as.character(1:my.tree$Nnode)
+                tree.labels = c(my.tree$tip.label, my.tree$node.label)
+                my.tree$edge.length = rep(1, nrow(my.tree$edge))
+              } else {
               my.tree = rphylo(tree.size, birth=1, death=death)
               my.tree$node.label = as.character(1:my.tree$Nnode)
               tree.labels = c(my.tree$tip.label, my.tree$node.label)
               my.tree$edge.length = my.tree$edge.length/mean(my.tree$edge.length)
-                        
+              }
+              
               expt = expt+1
               # get root reference, and add it to a "to-do" list for simulating traits
               my.root = getRoot(my.tree)
@@ -87,6 +94,7 @@ for(tree.size in 2**c(6)) {
               # pull just the tip observations from the tree
               tip.df = df[df$ref <= length(my.tree$tip.label),]
               tip.df$label = as.character(tip.df$label)
+              tip.df$y[tip.df$y < 0] = 0
               
               # record observation stats (how many real/observed positives/negatives)
               obs.stats = rbind(obs.stats, data.frame(expt=expt, true0=length(which(tip.df$x == 0)),
@@ -129,28 +137,25 @@ for(tree.size in 2**c(6)) {
                 my.tree.nb$edge.length = rep(mean(my.tree$edge.length), length(my.tree$edge))
                 my.correlation.nb = corBlomberg(0.5, phy=my.tree.nb, form=~label)
               }
-              
-              ####### PGLS under a model for correlations (respecting branch lengths)
          
-              if(all(tip.df$obs.x == 0) | all(tip.df$obs.x == 1)) { 
-                pgls.pval = NA 
+              if(all(tip.df$obs.x == 0) | all(tip.df$obs.x == 1) | all(tip.df$y == 0) |
+                 (length(which(tip.df$y[tip.df$obs.x==1] > 0)) < 2) |
+                 (length(which(tip.df$y[tip.df$obs.x==0] > 0)) < 2)) { 
+                pgls.pval = pgls.nb.pval = NA 
               } else {
-                pgls.mod = gls(y~obs.x, correlation=my.correlation, data=tip.df, method="ML", na.action=na.omit)
-                gls.mod = gls(y~obs.x, data=tip.df, method="ML", na.action=na.omit)
-                pgls.coef = coef(pgls.mod)[2]
-                pgls.pval = anova(pgls.mod)$'p-value'[2]
-                pgls.pval
-              }
-  
-              ####### PGLS under a model for correlations (ignoring branch lengths)
-              if(all(tip.df$obs.x == 0) | all(tip.df$obs.x == 1)) { 
-                pgls.nb.pval = NA 
-              } else {
-                pgls.nb.mod = gls(y~obs.x, correlation=my.correlation.nb, data=tip.df, method="ML", na.action=na.omit)
-                gls.nb.mod = gls(y~obs.x, data=tip.df, method="ML", na.action=na.omit)
-                pgls.nb.coef = coef(pgls.nb.mod)[2]
-                pgls.nb.pval = anova(pgls.nb.mod)$'p-value'[2]
-                pgls.nb.pval
+                pgls.pval = pgls.nb.pval = NA
+                ####### PGLS under a model for correlations (respecting branch lengths)
+                ####### PGLS under a model for correlations (ignoring branch lengths)
+                tryCatch( {
+                  pgls.mod = gls(y~obs.x, correlation=my.correlation, data=tip.df, method="ML", na.action=na.omit)
+                  pgls.coef = coef(pgls.mod)[2]
+                  pgls.pval = anova(pgls.mod)$'p-value'[2]
+                  pgls.nb.mod = gls(y~obs.x, correlation=my.correlation.nb, data=tip.df, method="ML", na.action=na.omit)
+                  pgls.nb.coef = coef(pgls.nb.mod)[2]
+                  pgls.nb.pval = anova(pgls.nb.mod)$'p-value'[2]
+                },  error = function(e) {
+                  pgls.pval = pgls.nb.pval = NA
+                }) 
               }
             
               # debug stop criterion
@@ -196,7 +201,7 @@ g.2 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
   facet_grid(death~corstructname) +
-  theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLS") + labs(color="Obs error")
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLS w/o branch lengths") + labs(color="Obs error")
 
 # plot all
 grid.arrange(g.1, g.2, nrow=2)

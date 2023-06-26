@@ -77,6 +77,7 @@ for(tree.size in 2**c(4, 5, 6)) {
 
             # pull just the tip observations from the tree
             tip.df = df[df$ref <= length(my.tree$tip.label),]
+            tip.df$y[tip.df$y < 0] = 0
 
             # record observation stats (how many real/observed positives/negatives)
             obs.stats = rbind(obs.stats, data.frame(expt=expt, true0=length(which(tip.df$x == 0)),
@@ -93,18 +94,28 @@ for(tree.size in 2**c(4, 5, 6)) {
             basic.test = cor.test(tip.df$obs.x, tip.df$y)
             basic.pval = basic.test$p.value
 
+            if(all(tip.df$obs.x == 0) | all(tip.df$obs.x == 1) | all(tip.df$y == 0) |
+               (length(which(tip.df$y[tip.df$obs.x==1] > 0)) < 2) |
+               (length(which(tip.df$y[tip.df$obs.x==0] > 0)) < 2)) { 
+              pgls.pval =  pglm.pval  = NA
+            } else {
             ####### PGLS under a Brownian model for correlations
             my.correlation = corBrownian(phy=my.tree, form=~label)
-            if(all(tip.df$obs.x == 0) | all(tip.df$obs.x == 1)) { 
-              pgls.pval = NA 
-            } else {
+          
               pgls.mod = gls(y~obs.x, correlation=my.correlation, data=tip.df, method="ML", na.action=na.omit)
               gls.mod = gls(y~obs.x, data=tip.df, method="ML", na.action=na.omit)
               pgls.coef = coef(pgls.mod)[2]
               pgls.pval = anova(pgls.mod)$'p-value'[2]
               pgls.pval
+          
+            ####### PGLM with branch lengths
+              rownames(tip.df) = tip.df$label
+              pglm = phyloglm(y~obs.x, tip.df, my.tree, method="poisson_GEE")
+              pglm.coef = summary(pglm)$coefficients[2,1]
+              pglm.pval = summary(pglm)$coefficients[2,4]
+              
             }
-
+            
             ####### a non-parametric approach summarising response differences between close relatives (sisters, cousins, etc) with different predictor values
 
             #### this code labels each node in the tree with a trait value and a gene count
@@ -271,7 +282,7 @@ for(tree.size in 2**c(4, 5, 6)) {
 
             # store p-values in a data frame
             pvals = rbind(pvals, data.frame(tree.size=tree.size, model.correlated=model.correlated, mean.events=mean.events, 
-                                p01=p01, p10=p10, expt=expt, basic.pval=basic.pval, pgls.pval=pgls.pval, 
+                                p01=p01, p10=p10, expt=expt, basic.pval=basic.pval, pgls.pval=pgls.pval, pglm.pval=pglm.pval, 
                                 wilcox.pval=wilcox.pval, boot.pval=boot.pval))
           }
         }
@@ -320,14 +331,22 @@ g.4 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
   facet_grid(mean.events~tree.size) + 
-  theme_light() + xlab("True effect") + ylab("log(-log(p)) relatives-Wilcoxon") + labs(color="Obs error")
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) relatives-bootstrap") + labs(color="Obs error")
+
+# PGLM
+g.5 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(pglm.pval)), color=noise.label)) + 
+  geom_boxplot() + geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
+  geom_vline(xintercept=1.5, color="#888888")+
+  geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
+  facet_grid(mean.events~tree.size) + 
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLM") + labs(color="Obs error")
 
 # plot all together
-grid.arrange(g.1, g.2, g.3, g.4, nrow=2)
+grid.arrange(g.1, g.2, g.3, g.4, g.5, nrow=3)
 
 sf = 2
 png("method-comparison.png", width=1000*sf, height=1000*sf, res=72*sf)
-grid.arrange(g.1, g.2, g.3, g.4, nrow=2)
+grid.arrange(g.1, g.2, g.3, g.4, g.5, nrow=3)
 dev.off()
 
 # summarise info on observation statistics
