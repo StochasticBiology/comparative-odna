@@ -11,6 +11,7 @@ All these scripts simulate an evolutionary process meant to mimic organelle DNA 
 `pgls-high-obs-noise.R` explores the PGLS effect of a substantial false negative rate in observations of the predictor variable.
 `pgls-branch-lengths.R` explores the PGLS effect of accounting for, or not accounting for, branch lengths.
 `pgls-branch-cor-structs.R` does as the previous but test different models for correlation structures.
+`pgls-illustration.R` illustrates some simulations.
 
 Organelle DNA
 -----
