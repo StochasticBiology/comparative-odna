@@ -9,8 +9,8 @@ All these scripts simulate an evolutionary process meant to mimic organelle DNA 
 
 `method-comparison.R` compares PGLS, naive correlation, and other non-parametric approaches to characterise correlations.
 `pgls-high-obs-noise.R` explores the PGLS effect of a substantial false negative rate in observations of the predictor variable.
-`pgls-branches.R` explores the PGLS effect of accounting for, or not accounting for, branch lengths.
-`pgls-cor-structs.R` and `pgls-branches-cor-structs.R` do as the previous two but test different models for correlation structures.
+`pgls-branch-lengths.R` explores the PGLS effect of accounting for, or not accounting for, branch lengths.
+`pgls-branch-cor-structs.R` does as the previous but test different models for correlation structures.
 
 Organelle DNA
 -----
