@@ -7,10 +7,10 @@ Synthetic controls
 -----
 All these scripts simulate an evolutionary process meant to mimic organelle DNA reduction, and explore the power and precision of comparative methods to detect correlations from awkward resulting data.
 
-`method-comparison.R` compares PGLS, naive correlation, and other non-parametric approaches to characterise correlations.
+`method-comparison.R` compares PGLS, naive correlation, PGLM, and other non-parametric approaches to characterise correlations.
 `pgls-high-obs-noise.R` explores the PGLS effect of a substantial false negative rate in observations of the predictor variable.
-`pgls-branch-lengths.R` explores the PGLS effect of accounting for, or not accounting for, branch lengths.
-`pgls-branch-cor-structs.R` does as the previous but test different models for correlation structures.
+`pgls-branch-lengths.R` explores the PGLS and PGLM effect of accounting for, or not accounting for, branch lengths.
+`pgls-branch-cor-structs.R` does as the previous but tests different models for correlation structures.
 `pgls-illustration.R` illustrates some simulations.
 
 Organelle DNA
