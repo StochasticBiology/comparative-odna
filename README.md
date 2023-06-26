@@ -3,6 +3,8 @@ Phylogenetic comparative approaches with challenging (oDNA) datasets
 
 This project explores the use of different phylogenetic comparative methods, including phylogenetic generalised least squares (PGLS), to investigate evolutionary correlations between variables with awkward data structures.
 
+![image](https://github.com/StochasticBiology/pgls-odna/assets/50171196/6dca8ca1-e609-4226-ac7b-c8a0acc95451)
+
 Synthetic controls
 -----
 All these scripts simulate an evolutionary process meant to mimic organelle DNA reduction, and explore the power and precision of comparative methods to detect correlations from awkward resulting data.
