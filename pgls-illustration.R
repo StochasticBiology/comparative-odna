@@ -6,6 +6,10 @@ library(gridExtra)
 
 library(ggtree)
 
+my.seed = 4
+
+set.seed(my.seed)
+
 # create and plot example trees and data to illustrate the synthetic evolutionary work
 
 # initialise results frame and experiment counter
@@ -70,7 +74,7 @@ p10 = 0.5
 
             # pull just the tip observations from the tree
             tip.df = df[df$ref <= length(my.tree$tip.label),]
-
+            tip.df$y[tip.df$y < 0] = 0
             # record observation stats (how many real/observed positives/negatives)
             obs.stats = rbind(obs.stats, data.frame(expt=expt, true0=length(which(tip.df$x == 0)),
                                                     true1=length(which(tip.df$x == 1)),
@@ -88,10 +92,12 @@ g.tree.1 = ggtree(my.tree) %<+% plot.tip.df +
 
  ###########
  
+set.seed(my.seed)
+
 tree.size = 32
 death = 1
 mean.events = 4
-model.correlated = 20
+model.correlated = 10
 p01 = 0
 p10 = 0.5
                # create random phylogeny with 2^n nodes from birth-death process parameterised as above
@@ -150,6 +156,7 @@ p10 = 0.5
                # pull just the tip observations from the tree
                tip.df = df[df$ref <= length(my.tree$tip.label),]
                tip.df$label = as.character(tip.df$label)
+               tip.df$y[tip.df$y < 0] = 0
                
                # record observation stats (how many real/observed positives/negatives)
                obs.stats = rbind(obs.stats, data.frame(expt=expt, true0=length(which(tip.df$x == 0)),
@@ -166,11 +173,11 @@ p10 = 0.5
     theme(legend.position="none")
          
                ############
-               
+               set.seed(my.seed)
                tree.size = 32
                death = 0.1
                mean.events = 4
-               model.correlated = 20
+               model.correlated = 10
                p01 = 0
                p10 = 0.5
                # create random phylogeny with 2^n nodes from birth-death process parameterised as above
@@ -229,6 +236,7 @@ p10 = 0.5
                # pull just the tip observations from the tree
                tip.df = df[df$ref <= length(my.tree$tip.label),]
                tip.df$label = as.character(tip.df$label)
+               tip.df$y[tip.df$y < 0] = 0
                
                # record observation stats (how many real/observed positives/negatives)
                obs.stats = rbind(obs.stats, data.frame(expt=expt, true0=length(which(tip.df$x == 0)),
@@ -244,8 +252,8 @@ p10 = 0.5
                  geom_tippoint(aes(shape = factor(df.obs.x), color=factor(df.obs.x), size = df.y), position=position_nudge(x=0.5)) +
             theme(legend.position="none")
           
-          sf=2
-          png("pgls-illustrations.png", width=800*sf, height=300*sf, res=72*sf)
+          sf=1
+          png("pgls-illustrations.png", width=1200*sf, height=500*sf, res=72*sf)
           grid.arrange(g.tree.1, g.tree.2, g.tree.3, nrow=1)
           dev.off()
                
