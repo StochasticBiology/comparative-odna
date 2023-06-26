@@ -15,7 +15,7 @@ All these scripts simulate an evolutionary process meant to mimic organelle DNA 
 
 Organelle DNA
 -----
-`MTFull22.txt` and `PTFull22.txt` are tab-separated datafiles of organismal traits by species, compiled from a variety of sources. These datafiles are very sparse -- one of the issues we are investigating. `tree-for-traits-clean-mt.phy` and `tree-for-traits-clean-pt.phy` are Newick trees from NCBI's Common Taxonomy Tree tool linking these observed species.
+`MTFull22.txt` and `PTFull22.txt` are tab-separated datafiles of organismal traits by species, compiled from a variety of sources. These datafiles are very sparse -- one of the issues we are investigating. `tree-for-traits-clean-mt.phy` and `tree-for-traits-clean-pt.phy` are Newick trees from NCBI's Common Taxonomy Tree tool linking these observed species. `odna-illustration.R` uses these files to plot trees illustrating a particular trait (parasitism) with oDNA gene count.
 
 `mt-corr.R` and `pt-corr.R` use the PGLS pipeline above to explore correlations between different traits and organelle DNA counts across species. This is computationally demanding, given the large correlation structure linking observations. A machine with 4GB RAM (or maybe more) is probably necessary; some of the traits will take perhaps dozens of minutes on a modern machine. As there are around 80 traits, some of which have multiple factor levels, we are probably talking a 48-hour run time for the mtDNA data (the ptDNA data is smaller and sparser and will probably run in a handful of hours). EDIT: there is now a final "habitat" feature that has many dozen levels. This will take a possible couple of days by itself! It's all very parallelisable though if you have the memory.
 
