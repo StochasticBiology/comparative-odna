@@ -138,6 +138,15 @@ for(tree.size in 2**c(6)) {
                 pglm.nb = phyloglm(y~obs.x, tip.df, my.tree.nb, method="poisson_GEE")
                 pglm.nb.coef = summary(pglm.nb)$coefficients[2,1]
                 pglm.nb.pval = summary(pglm.nb)$coefficients[2,4]
+                
+                plm = phylolm(y~obs.x, tip.df, my.tree, model="BM")
+                plm.coef = summary(plm)$coefficients[2,1]
+                plm.pval = summary(plm)$coefficients[2,4]
+                
+                ####### PGLM without branch lengths
+                plm.nb = phylolm(y~obs.x, tip.df, my.tree.nb, model="BM")
+                plm.nb.coef = summary(plm.nb)$coefficients[2,1]
+                plm.nb.pval = summary(plm.nb)$coefficients[2,4]
 
               }
               # debug stop criterion
@@ -147,7 +156,8 @@ for(tree.size in 2**c(6)) {
               pvals = rbind(pvals, data.frame(tree.size=tree.size, model.correlated=model.correlated, 
                                               mean.events=mean.events, death=death,
                                               p01=p01, p10=p10, expt=expt, basic.pval=basic.pval, pgls.pval=pgls.pval, 
-                                              pgls.nb.pval=pgls.nb.pval, pglm.pval=pglm.pval, pglm.nb.pval=pglm.nb.pval))
+                                              pgls.nb.pval=pgls.nb.pval, pglm.pval=pglm.pval, pglm.nb.pval=pglm.nb.pval,
+                                              plm.pval=plm.pval, plm.nb.pval=plm.nb.pval))
             }
           }
         }
@@ -190,7 +200,7 @@ g.3 =  ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log
   facet_grid(mean.events~death)+
   theme_light() + xlab("True effect") + ylab("log(-log(p)) naive") + labs(color="Obs error")
 
-# PGLS with branch lengths
+# PGLM with branch lengths
 g.4 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(pglm.pval)), color=noise.label)) + 
   geom_boxplot() + geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
@@ -206,11 +216,27 @@ g.5 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   facet_grid(mean.events~death) +
   theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLM w/o branches") + labs(color="Obs error")
 
+# PLM with branch lengths
+g.6 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(plm.pval)), color=noise.label)) + 
+  geom_boxplot() + geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
+  geom_vline(xintercept=1.5, color="#888888")+
+  geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
+  facet_grid(mean.events~death) +
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PLM") + labs(color="Obs error")
+
+# PLM without branch lengths
+g.7 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(plm.nb.pval)), color=noise.label)) + 
+  geom_boxplot() + geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
+  geom_vline(xintercept=1.5, color="#888888")+
+  geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
+  facet_grid(mean.events~death) +
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PLM w/o branches") + labs(color="Obs error")
+
 # plot all
-grid.arrange(g.1, g.2, g.3, g.4, g.5, nrow=3)
+grid.arrange(g.1, g.2, g.3, g.4, g.5, g.6, g.7, nrow=4)
 sf = 2
-png("pgls-branches.png", width=600*sf, height=800*sf, res=72*sf)
-grid.arrange(g.1, g.2, g.3, g.4, g.5, nrow=3)
+png("pgls-branches.png", width=600*sf, height=1000*sf, res=72*sf)
+grid.arrange(g.1, g.2, g.4, g.5, g.6, g.7, g.3, nrow=4)
 dev.off()
 
 # summarise info on observation statistics

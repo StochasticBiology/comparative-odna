@@ -4,7 +4,7 @@ library(nlme)
 library(ggplot2)
 library(gridExtra)
 
-# explores the power of PGLS to find correlations under some awkward conditions
+# explores the power of PGLS+PGLM to find correlations under some awkward conditions
 # (i) the variables x and y are not well-behaved: x is binary and y discrete, and the rate of decrease of y depends on x
 # (ii) x is not observed perfectly: p01 is the probability of seeing a 1 when x=0 and p10 the probability of seeing a 0 when x=1
 #      [note for things like parasitism I think p01=0]
@@ -12,7 +12,7 @@ library(gridExtra)
 # model.correlated determines whether y does depend on x or not; 10 samples are run for each case
 # other variables are tree size and average number of x transitions
 
-# this code focuses on PGLS and looks at more extreme data occlusion: up to 95% of positive predictor values are now observed as negatives
+# this code focuses on PGLS+PGLM and looks at more extreme data occlusion: up to 95% of positive predictor values are now observed as negatives
 
 # initialise results frame and experiment counter
 pvals = obs.stats = data.frame()
@@ -33,7 +33,7 @@ for(tree.size in 2**c(8)) {
       for(p01 in c(0)) {                        # false positive observation rate (0 for us)
         for(p10 in c(0,0.5,0.9,0.95)) {         # false negative observation rate
           cat(paste(c(tree.size, mean.events, model.correlated, p01, p10, "\n"), collapse=" "))
-          for(this.expt in 1:20) {
+          for(this.expt in 1:80) {
             expt = expt+1
             # get root reference, and add it to a "to-do" list for simulating traits
             my.root = getRoot(my.tree)
@@ -97,24 +97,36 @@ for(tree.size in 2**c(8)) {
             basic.test = cor.test(tip.df$obs.x, tip.df$y)
             basic.pval = basic.test$p.value
 
-            ####### PGLS under a Brownian model for correlations
+            
             if(all(tip.df$obs.x == 0) | all(tip.df$obs.x == 1) | all(tip.df$y == 0) |
                (length(which(tip.df$y[tip.df$obs.x==1] > 0)) < 2) |
                (length(which(tip.df$y[tip.df$obs.x==0] > 0)) < 2)) { 
-              pgls.pval =  NA 
+              pgls.pval = pglm.pval = NA 
             } else {
               my.correlation = corBrownian(phy=my.tree, form=~label)
              
+              ####### PGLS under a Brownian model for correlations
                 pgls.mod = gls(y~obs.x, correlation=my.correlation, data=tip.df, method="ML", na.action=na.omit)
                 gls.mod = gls(y~obs.x, data=tip.df, method="ML", na.action=na.omit)
                 pgls.coef = coef(pgls.mod)[2]
                 pgls.pval = anova(pgls.mod)$'p-value'[2]
+                
+                ####### PGLM
+                rownames(tip.df) = tip.df$label
+                pglm = phyloglm(y~obs.x, tip.df, my.tree, method="poisson_GEE")
+                pglm.coef = summary(pglm)$coefficients[2,1]
+                pglm.pval = summary(pglm)$coefficients[2,4]
+                
+                plm = phylolm(y~obs.x, tip.df, my.tree, model="BM")
+                plm.coef = summary(plm)$coefficients[2,1]
+                plm.pval = summary(plm)$coefficients[2,4]
           
             }
 
             # store p-values in a data frame
             pvals = rbind(pvals, data.frame(tree.size=tree.size, model.correlated=model.correlated, mean.events=mean.events, 
-                                p01=p01, p10=p10, expt=expt, basic.pval=basic.pval, pgls.pval=pgls.pval))
+                                p01=p01, p10=p10, expt=expt, basic.pval=basic.pval, pgls.pval=pgls.pval, pglm.pval=pglm.pval,
+                                plm.pval=plm.pval))
           }
         }
       }
@@ -140,8 +152,24 @@ g.1 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   facet_grid(mean.events~tree.size) +
   theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLS") + labs(color="Obs error")
 
+# PGLM performance
+g.2 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(pglm.pval)), color=noise.label)) + 
+  geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
+  geom_vline(xintercept=1.5, color="#888888")+
+  geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
+  facet_grid(mean.events~tree.size) +
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLM") + labs(color="Obs error")
+
+# PLM performance
+g.3 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(plm.pval)), color=noise.label)) + 
+  geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
+  geom_vline(xintercept=1.5, color="#888888")+
+  geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
+  facet_grid(mean.events~tree.size) +
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PLM") + labs(color="Obs error")
+
 # naive correlation performance
-g.2 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(basic.pval)), color=noise.label)) + 
+g.4 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(basic.pval)), color=noise.label)) + 
   geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
@@ -149,24 +177,41 @@ g.2 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   theme_light() + xlab("True effect") + ylab("log(-log(p)) naive") + labs(color="Obs error")
 
 # plot both
-grid.arrange(g.1, g.2, nrow=1)
+grid.arrange(g.1, g.2, g.3, g.4, nrow=2)
 
 sf=2
-png("pgls-high-obs-noise.png", width=600*sf, height=480*sf, res=72*sf)
-grid.arrange(g.1, g.2, nrow=1)
+png("pgls-high-obs-noise.png", width=800*sf, height=600*sf, res=72*sf)
+grid.arrange(g.1, g.2, g.3, g.4, nrow=2)
 dev.off()
 
 # plot a single subplot for the main text
 label.text = data.frame(label=c("FP","TN","TP","FN"), x=c(1,1, 2.1,2.1)-0.3, y=c(2.5,-2,2.5,-2))
-g.sub = ggplot(pvals[pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.correlated), y=log10(-log10(pgls.pval)), color=noise.label)) + 
+g1.sub = ggplot(pvals[pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.correlated), y=log10(-log10(pgls.pval)), color=noise.label)) + 
   geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) + 
-  theme_light() + xlab("True effect") + ylab("log(-log(p)) naive") + labs(color="Obs error")
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLS") + labs(color="Obs error")
+
+g2.sub = ggplot(pvals[pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.correlated), y=log10(-log10(pglm.pval)), color=noise.label)) + 
+  geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
+  geom_vline(xintercept=1.5, color="#888888")+
+  geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) + 
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLM") + labs(color="Obs error")
+
+g3.sub = ggplot(pvals[pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.correlated), y=log10(-log10(plm.pval)), color=noise.label)) + 
+  geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
+  geom_vline(xintercept=1.5, color="#888888")+
+  geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) + 
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PLM") + labs(color="Obs error")
 
 sf=2
-png("pgls-high-obs-noise-subpanel.png", width=300*sf, height=300*sf, res=72*sf)
-g.sub
+png("pgls-high-obs-noise-subpanel.png", width=500*sf, height=300*sf, res=72*sf)
+grid.arrange(g1.sub, g2.sub, nrow=2)
+dev.off()
+
+sf=2
+png("pgls-high-obs-noise-zoom.png", width=500*sf, height=700*sf, res=72*sf)
+grid.arrange(g1.sub, g2.sub, g3.sub, nrow=3)
 dev.off()
 
 # summarise info on observation statistics

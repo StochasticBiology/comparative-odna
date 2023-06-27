@@ -114,6 +114,9 @@ for(tree.size in 2**c(4, 5, 6)) {
               pglm.coef = summary(pglm)$coefficients[2,1]
               pglm.pval = summary(pglm)$coefficients[2,4]
               
+              plm = phylolm(y~obs.x, tip.df, my.tree, model="BM")
+              plm.coef = summary(plm)$coefficients[2,1]
+              plm.pval = summary(plm)$coefficients[2,4]
             }
             
             ####### a non-parametric approach summarising response differences between close relatives (sisters, cousins, etc) with different predictor values
@@ -283,7 +286,7 @@ for(tree.size in 2**c(4, 5, 6)) {
             # store p-values in a data frame
             pvals = rbind(pvals, data.frame(tree.size=tree.size, model.correlated=model.correlated, mean.events=mean.events, 
                                 p01=p01, p10=p10, expt=expt, basic.pval=basic.pval, pgls.pval=pgls.pval, pglm.pval=pglm.pval, 
-                                wilcox.pval=wilcox.pval, boot.pval=boot.pval))
+                                plm.pval=plm.pval, wilcox.pval=wilcox.pval, boot.pval=boot.pval))
           }
         }
       }
@@ -341,12 +344,20 @@ g.5 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   facet_grid(mean.events~tree.size) + 
   theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLM") + labs(color="Obs error")
 
+# PLM
+g.6 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(plm.pval)), color=noise.label)) + 
+  geom_boxplot() + geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
+  geom_vline(xintercept=1.5, color="#888888")+
+  geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
+  facet_grid(mean.events~tree.size) + 
+  theme_light() + xlab("True effect") + ylab("log(-log(p)) PLM") + labs(color="Obs error")
+
 # plot all together
-grid.arrange(g.1, g.2, g.3, g.4, g.5, nrow=3)
+grid.arrange(g.1, g.6, g.3, g.4, g.5, g.2, nrow=3)
 
 sf = 2
 png("method-comparison.png", width=1000*sf, height=1000*sf, res=72*sf)
-grid.arrange(g.1, g.2, g.3, g.4, g.5, nrow=3)
+grid.arrange(g.1, g.6, g.3, g.4, g.5, g.2, nrow=3)
 dev.off()
 
 # summarise info on observation statistics
