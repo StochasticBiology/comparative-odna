@@ -25,7 +25,7 @@ df$Ancestry = as.character(df$Ancestry)
 results.df = data.frame()
 
 column.set = 1:ncol(df)
-not.interesting = c(1, 2, 3, 15, 35, 56, 66, 67, 68)
+not.interesting = c(1, 2, 3, 15, 35, 56, 63, 64, 65, 66, 67, 68)
 for(positive.column in column.set[-not.interesting]) {
   label.set = unique(df[,positive.column])
   for(positive.label in label.set) {
