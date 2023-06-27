@@ -1,4 +1,4 @@
-# pgls-odna
+# comparative-odna
 Phylogenetic comparative approaches with challenging (oDNA) datasets
 
 This project explores the use of different phylogenetic comparative methods, including phylogenetic generalised least squares (PGLS) and phylogenetic generalised linear models (PGLM) to investigate evolutionary correlations between variables with awkward data structures.
