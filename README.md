@@ -25,6 +25,9 @@ Organelle DNA
 
 `plot-odna-corr.R` plots the results (which are written to files by the above scripts).
 
+`mt-corr-pglm.R`, `pt-corr-pglm.R`, and `mt-corr-no-metazoa-pglm.R` do the same analyses using PGLM. This is much faster (seconds) and requires less memory. `plot-odna-corr-pglm.R` plots the results (which are written to files by the above scripts).
+
+
 Assisted manual parsing of Wikipedia pages
 -----
 
