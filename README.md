@@ -27,6 +27,7 @@ Organelle DNA
 
 `mt-corr-pglm.R`, `pt-corr-pglm.R`, and `mt-corr-no-metazoa-pglm.R` do the same analyses using PGLM. This is much faster (seconds) and requires less memory. `plot-odna-corr-pglm.R` plots the results (which are written to files by the above scripts).
 
+EDIT: `mt-test.R`, `pt-test.R` do PLM and PGLM for oDNA protein-coding gene counts, also producing plots according to latest significance coding; `mt-test-nbci.R` and `pt-test-ncbi.R` do the same for NCBI-derived CDS counts.
 
 Assisted manual parsing of Wikipedia pages
 -----
