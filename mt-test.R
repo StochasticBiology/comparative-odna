@@ -3,6 +3,9 @@ library(ape)
 library(phangorn)
 library(nlme)
 library(phylolm)
+library(ggplot2)
+library(ggrepel)
+library(gridExtra)
 
 # this function converts a species name string from the Newick format which Common Taxonomy Tree gives us into a simpler lower-case, no quotes version comparable to Kostas' dataset
 convname = function(str) {
