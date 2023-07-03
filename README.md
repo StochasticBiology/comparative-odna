@@ -29,6 +29,14 @@ Organelle DNA
 
 EDIT: `mt-test.R`, `pt-test.R` do PLM and PGLM for oDNA protein-coding gene counts, also producing plots according to latest significance coding; `mt-test-nbci.R` and `pt-test-ncbi.R` do the same for NCBI-derived CDS counts.
 
+Processing and plotting using the plant phylogeny
+-----
+We provide scripts to process an external (vascular) plant phylogeny, output the necessary txt files and then plot the pglm and plm volcano plots as in (mt/pt)-test(-ncbi).R, once with the branch lengths and once without uniform branch length (NOBL).
+
+`plantPhyloMT.R` is the script that fetches the phylogeny data from https://github.com/megatrees and tries to find the matches with our `MTFull22.txt` dataset. The, it exports two files: `MTspeciesHits.txt` with the subset of `MTFull22.txt` and `mt-pruned-plantPhylo.phy`, which is the the phylogenetic tree for the former list of species. `plantPhyloPT.R` works the same for the plastid case, that is the `PTFull22.txt` input dataset.
+
+`mt-test-Plants.R` reads the output files from plantPhyloMT.R and plots the significance and coefficients for (filtered) traits in a similar fashion to `mt-test.R` for PLM and PGLM. `mt-test-Plants-NOBL.R` does to same, only with  removing the branch length information from the plant phylogeny (i.e., the underlying tree has uniform edge lengths, but the topology remains the same). `pt-test-Plants.R` and `pt-test-Plants-NOBL.R` do the same for plastid gene counts.
+
 Assisted manual parsing of Wikipedia pages
 -----
 
