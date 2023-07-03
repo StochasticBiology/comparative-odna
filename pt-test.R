@@ -70,10 +70,6 @@ for(positive.column in column.set[-not.interesting]) {
         if(all(mydf2$x=="0") | all(mydf2$x=="1") | all(mydf2$y==mydf2$y[1])) {
           coef = 0
           pval = 1
-          pglm.coef = 0
-          pglm.pval = 1
-          plm.coef = 0
-          plm.pval = 1
         } else {
           pglm = phyloglm(y~x, mydf2, positive.clade, method="poisson_GEE")
           plm = phylolm(y~x, mydf2, positive.clade, model="BM")
@@ -94,10 +90,10 @@ for(positive.column in column.set[-not.interesting]) {
           }
           }
           
-          print(paste(c("Done ", positive.column, positive.label, length(positives))))
+          print(paste(c("Done ", positive.column, positive.label, coef, pval, length(positives))))
           results.df = rbind(results.df, data.frame(col=positive.column, colname=colnames(df)[positive.column],
                                                     positive.label=positive.label,pglm.coef=pglm.coef,pglm.pval=pglm.pval,
-                                                    plm.coef=plm.coef,plm.pval=plm.pval,
+                                                    plm.coef=plm.coef,plm.pval=plm.pval,basic.pval=basic.pval,
                                                     n.positive=length(positives), clade.positive=length(positive.clade$tip.label),
                                                     mrca.positive=tree.labels[MRCA], mincount=mincount))
         write.csv(results.df, "test.csv", quote=FALSE, row.names=FALSE)
