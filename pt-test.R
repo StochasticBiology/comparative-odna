@@ -18,13 +18,37 @@ tree = read.newick("tree-for-traits-clean-pt.phy")
 #my.correlation = corBrownian(phy=tree)
 tree$tip.label = convname(tree$tip.label)
 tree.labels = c(tree$tip.label, tree$node.label)
+# assign clade labels
+root = which(tree.labels=="Eukaryota")
+clade.refs = Children(tree, root)
+clade.names = tree.labels[clade.refs]
 
 # read Kostas' dataset
 df = read.table("PTFull22.txt", sep="\t", header=T, stringsAsFactors = TRUE)
 
+# manually fix bugs
+df$plant.growth.form[which(df$Scientific.Name=="triodia sylvina")] = NA
+df$life.cycle.habit[grep("lucilia", df$Scientific.Name)] = NA
+
 # the dataset is read as factors by default -- we'll awkwardly convert between data types
 df$Scientific.Name = as.character(df$Scientific.Name)
 df$Ancestry = as.character(df$Ancestry)
+
+# either assign clade label to dataframe rows, or drop if not found in phylogeny
+df$clade = ""
+to.drop = c()
+for(i in 1:nrow(df)) {
+  tip.ref = which(tree.labels == df$Scientific.Name[i])
+  if(length(tip.ref) > 0) {
+    ancestors = Ancestors(tree, tip.ref)
+    ancestor = ancestors[which(ancestors %in% clade.refs)]
+    df$clade[i] = tree.labels[ancestor]
+  } else {
+    to.drop = c(to.drop, i)
+  }
+}
+
+df = df[-to.drop,]
 
 results.df = data.frame()
 
