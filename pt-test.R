@@ -155,9 +155,11 @@ for(i in 1:nrow(valid.df)) {
 }
 valid.df$p.cat = factor(valid.df$p.cat, levels=c("**/**", "**/*", "**/-", "*/*", "*/-", "-/-"))
 g.pglm = ggplot(valid.df, aes(x=pglm.coef, y=log(-log(pglm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2) + xlim(NA,0.8)
+  geom_point() + geom_text_repel(max.overlaps=50, size=2) + xlim(NA,0.8) +
+  theme_light() + labs(title="PT gene count PGLM", x ="PGLM coefficient", y = "log(-log(p))", color="p profile")
 g.plm = ggplot(valid.df, aes(x=plm.coef, y=log(-log(plm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2) + xlim(NA,40)
+  geom_point() + geom_text_repel(max.overlaps=50, size=2) + xlim(NA,40) +
+  theme_light() + labs(title="PT gene count PLM", x ="PLM coefficient", y = "log(-log(p))", color="p profile")
 grid.arrange(g.pglm, g.plm, nrow=2)
 
 sf = 2
