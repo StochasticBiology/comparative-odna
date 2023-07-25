@@ -29,6 +29,8 @@ Organelle DNA -- cross-eukaryotic data, taxonomy tree
 
 EDIT: `mt-test.R`, `pt-test.R` do PLM and PGLM for oDNA protein-coding gene counts, also producing plots according to latest significance coding; `mt-test-nbci.R` and `pt-test-ncbi.R` do the same for NCBI-derived CDS counts.
 
+`mt-test-blockonly.R` and `pt-test-blockonly.R` use Kruskal-Wallis or Scheirer-Ray-Hare tests to block eukaryotic clade and analyse the remaining variance due to a factor of interest.
+
 Organelle DNA -- plant kingdom data, estimated phylogeny
 -----
 We provide scripts to process an external (vascular) plant phylogeny, output the necessary txt files and then plot the PGLM and PLM volcano plots as in `(mt/pt)-test(-ncbi).R`, once with the branch lengths and once with uniform branch lengths (neglecting specific branch length information; labelled NOBL).
