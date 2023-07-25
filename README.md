@@ -23,7 +23,7 @@ Organelle DNA -- cross-eukaryotic data, taxonomy tree
 
 `mt-test.R`, `pt-test.R` do PLM and PGLM for oDNA protein-coding gene counts, also producing plots according to latest significance coding; `mt-test-ncbi.R` and `pt-test-ncbi.R` do the same for NCBI-derived CDS counts; `mt-test-[ncbi-]no-metazoa.R` for the MT data with metazoans removed (many datapoints, little diversity). These approaches are much faster than the PGLS above and should run in seconds on a modern machines. Summary plots are produced.
 
-`mt-test-blockonly.R` and `pt-test-blockonly.R` use Kruskal-Wallis or Scheirer-Ray-Hare tests to block eukaryotic clade and analyse the remaining variance due to a factor of interest.
+`mt-test-blockonly.R` and `pt-test-blockonly.R` use Kruskal-Wallis or Scheirer-Ray-Hare tests to block eukaryotic clade and analyse the remaining variance due to a factor of interest. `mt-test-mixed.R` and `pt-test-mixed.R` use LMM and GLMM approaches to assign random effects associated with eukaryotic clade and assess the remaining link with the feature of interest.
 
 Organelle DNA -- plant kingdom data, estimated phylogeny
 -----
