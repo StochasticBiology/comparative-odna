@@ -1,7 +1,7 @@
 # comparative-odna
-Phylogenetic comparative approaches with challenging (oDNA) datasets
+Phylogenetic comparative approaches with challenging (organelle DNA) datasets
 
-This project explores the use of different phylogenetic comparative methods, including phylogenetic generalised least squares (PGLS) and phylogenetic generalised linear models (PGLM) to investigate evolutionary correlations between variables with awkward data structures.
+This project explores the use of different phylogenetic comparative methods, including phylogenetic generalised least squares (PGLS) and phylogenetic generalised linear models (PGLM), as well as approaches accounting for relatedness in a more coarse-grained way, to investigate evolutionary correlations between variables with awkward data structures.
 
 ![image](https://github.com/StochasticBiology/pgls-odna/assets/50171196/6dca8ca1-e609-4226-ac7b-c8a0acc95451)
 
