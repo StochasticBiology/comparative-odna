@@ -81,6 +81,14 @@ for(positive.column in column.set[-not.interesting]) {
     srh.pval = 1
   }
   
+  if(is.na(srh.pval)) {
+    plot.label = paste(c(expt.label, ", p=NAN"), collapse="")
+  } else  if(srh.pval == 0) {
+    plot.label = paste(c(expt.label, ", p<1e-50"), collapse="")
+  } else {
+    plot.label = paste(c(expt.label, ", p=", signif(srh.pval, digits=2)), collapse="")
+  }
+  
   toplot = c()
   for(clade in unique(mydf2$clade)) {
     if(length(unique(mydf2$x[mydf2$clade==clade])) > 1) { toplot = c(toplot, clade) }
@@ -88,7 +96,8 @@ for(positive.column in column.set[-not.interesting]) {
   toplot.df = mydf2[mydf2$clade %in% toplot,]
   cor.plot[[counter]] = ggplot(toplot.df, aes(x=clade,y=y,color=x)) + # geom_boxplot(position="dodge") + 
     geom_quasirandom(alpha=1,dodge.width=0.5) +
-    theme_classic() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + ggtitle(expt.label) 
+    theme_classic() + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+    ggtitle(plot.label) 
   counter=counter+1
   results.df = rbind(results.df, data.frame(label=expt.label,col=positive.column, srh.pval=srh.pval))
 }
