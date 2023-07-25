@@ -1,7 +1,7 @@
 # comparative-odna
-Phylogenetic comparative approaches with challenging (oDNA) datasets
+Phylogenetic comparative approaches with challenging (organelle DNA) datasets
 
-This project explores the use of different phylogenetic comparative methods, including phylogenetic generalised least squares (PGLS) and phylogenetic generalised linear models (PGLM) to investigate evolutionary correlations between variables with awkward data structures.
+This project explores the use of different phylogenetic comparative methods, including phylogenetic generalised least squares (PGLS) and phylogenetic generalised linear models (PGLM), as well as approaches accounting for relatedness in a more coarse-grained way, to investigate evolutionary correlations between variables with awkward data structures.
 
 ![image](https://github.com/StochasticBiology/pgls-odna/assets/50171196/6dca8ca1-e609-4226-ac7b-c8a0acc95451)
 
@@ -19,17 +19,11 @@ Organelle DNA -- cross-eukaryotic data, taxonomy tree
 -----
 `MTFull22.txt` and `PTFull22.txt` are tab-separated datafiles of organismal traits by species, compiled from a variety of sources. These datafiles are very sparse -- one of the issues we are investigating. `tree-for-traits-clean-mt.phy` and `tree-for-traits-clean-pt.phy` are Newick trees from NCBI's Common Taxonomy Tree tool linking these observed species. `odna-illustration.R` uses these files to plot trees illustrating a particular trait (parasitism) with oDNA gene count.
 
-`mt-corr.R` and `pt-corr.R` use the PGLS pipeline above to explore correlations between different traits and organelle DNA counts across species. This is computationally demanding, given the large correlation structure linking observations. A machine with 4GB RAM (or maybe more) is probably necessary; some of the traits will take perhaps dozens of minutes on a modern machine. As there are around 80 traits, some of which have multiple factor levels, we are probably talking a 48-hour run time for the mtDNA data* (the ptDNA data is smaller and sparser and will probably run in a handful of hours). `mt-corr-no-metazoa.R` does the mtDNA analysis after removing the Metazoa clade (huge and little diversity in gene count).
+`[mt/pt]-corr.R` use the PGLS pipeline above to explore correlations between different traits and organelle DNA counts across species. This is computationally demanding, given the large correlation structure linking observations. A machine with 4GB RAM (or maybe more) is probably necessary; some of the traits will take perhaps dozens of minutes on a modern machine. As there are around 80 traits, some of which have multiple factor levels, we are probably talking a 48-hour run time for the mtDNA data* (the ptDNA data is smaller and sparser and will probably run in a handful of hours). There is a final "habitat" feature that has many dozen levels. This will take a possible couple of days by itself! It's all very parallelisable though if you have the memory. `plot-odna-corr.R` plots the results (which are written to files by the above scripts).
 
-* EDIT: there is now a final "habitat" feature that has many dozen levels. This will take a possible couple of days by itself! It's all very parallelisable though if you have the memory.
+`[mt/pt]-test.R` do PLM and PGLM for oDNA protein-coding gene counts, also producing plots according to latest significance coding; `[mt/pt]-test-ncbi.R` do the same for NCBI-derived CDS counts; `mt-test-[ncbi-]no-metazoa.R` for the MT data with metazoans removed (many datapoints, little diversity). These approaches are much faster than the PGLS above and should run in seconds on a modern machines. Summary plots are produced.
 
-`plot-odna-corr.R` plots the results (which are written to files by the above scripts).
-
-`mt-corr-pglm.R`, `pt-corr-pglm.R`, and `mt-corr-no-metazoa-pglm.R` do the same analyses using PGLM. This is much faster (seconds) and requires less memory. `plot-odna-corr-pglm.R` plots the results (which are written to files by the above scripts).
-
-EDIT: `mt-test.R`, `pt-test.R` do PLM and PGLM for oDNA protein-coding gene counts, also producing plots according to latest significance coding; `mt-test-nbci.R` and `pt-test-ncbi.R` do the same for NCBI-derived CDS counts.
-
-`mt-test-blockonly.R` and `pt-test-blockonly.R` use Kruskal-Wallis or Scheirer-Ray-Hare tests to block eukaryotic clade and analyse the remaining variance due to a factor of interest.
+`[mt/pt]-test-blockonly.R` use Kruskal-Wallis or Scheirer-Ray-Hare tests to block eukaryotic clade and analyse the remaining variance due to a factor of interest. `[mt/pt]-test-mixed.R` use LMM and GLMM approaches to assign random effects associated with eukaryotic clade and assess the remaining link with the feature of interest.
 
 Organelle DNA -- plant kingdom data, estimated phylogeny
 -----

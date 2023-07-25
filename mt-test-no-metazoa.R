@@ -3,9 +3,6 @@ library(ape)
 library(phangorn)
 library(nlme)
 library(phylolm)
-library(ggplot2)
-library(ggrepel)
-library(gridExtra)
 
 # this function converts a species name string from the Newick format which Common Taxonomy Tree gives us into a simpler lower-case, no quotes version comparable to Kostas' dataset
 convname = function(str) {
@@ -14,9 +11,18 @@ convname = function(str) {
 
 # read phylogeny previously downloaded from Common Taxonomy Tree. this has previously been cleaned:
 # (i) all one line; (ii) extra set of brackets wrap the whole entity; (iii) nodes names don't contain special characters
-tree = read.newick("tree-for-traits-clean-pt.phy")
+tree = read.newick("tree-for-traits-clean-mt.phy")
 #my.correlation = corBrownian(phy=tree)
 tree$tip.label = convname(tree$tip.label)
+tree.labels = c(tree$tip.label, tree$node.label)
+metazoa.label = which(tree.labels=="Metazoa")
+metazoa.tips = Descendants(tree, metazoa.label, type="tips")[[1]]
+tree.no.metazoa = drop.tip(tree, metazoa.tips, collapse.singles=FALSE)
+tnm.labels = c(tree.no.metazoa$tip.label, tree.no.metazoa$node.label)
+tnm.root = which(tnm.labels == "Eukaryota")
+tree.no.metazoa = root(tree.no.metazoa, node=tnm.root)
+tree = tree.no.metazoa
+tree.tips = convname(tree$tip.label)
 tree.labels = c(tree$tip.label, tree$node.label)
 # assign clade labels
 root = which(tree.labels=="Eukaryota")
@@ -24,7 +30,7 @@ clade.refs = Children(tree, root)
 clade.names = tree.labels[clade.refs]
 
 # read Kostas' dataset
-df = read.table("PTFull22.txt", sep="\t", header=T, stringsAsFactors = TRUE)
+df = read.table("MTFull22.txt", sep="\t", header=T, stringsAsFactors = TRUE)
 
 # manually fix bugs
 df$plant.growth.form[which(df$Scientific.Name=="triodia sylvina")] = NA
@@ -70,7 +76,7 @@ for(positive.column in column.set[-not.interesting]) {
         pc.root = which(pc.labels == tree.labels[MRCA])
         positive.clade = root(positive.clade, node=pc.root)
         # now construct a dataframe for use in other approaches
-      mydf2 = data.frame(label=df$Scientific.Name, x=ifelse(df[,positive.column]==positive.label, 1, 0), y=df$countsPT)
+      mydf2 = data.frame(label=df$Scientific.Name, x=ifelse(df[,positive.column]==positive.label, 1, 0), y=df$countsMT)
         # loop through leaves in taxonomy tree
       rownames(mydf2) = mydf2$label
       mydf2 = mydf2[which(mydf2$label %in% positive.clade$tip.label),]
@@ -118,14 +124,14 @@ for(positive.column in column.set[-not.interesting]) {
           }
           }
           
-          print(paste(c("Done ", positive.column, positive.label, length(positives))))
+          print(paste(c("Done ", positive.column, positive.label, coef, pval, length(positives))))
           results.df = rbind(results.df, data.frame(col=positive.column, colname=colnames(df)[positive.column],
                                                     positive.label=positive.label,pglm.coef=pglm.coef,pglm.pval=pglm.pval,
                                                     plm.coef=plm.coef,plm.pval=plm.pval,
                                                     n.positive=length(positives), clade.positive=length(positive.clade$tip.label),
                                                     mrca.positive=tree.labels[MRCA], mincount=mincount))
         write.csv(results.df, "test.csv", quote=FALSE, row.names=FALSE)
-        #write(paste(positive.column, positive.label, coef, pval, length(positives), length(positive.clade$tip.label)), file="23a-pt-tmp.txt", sep=",", append=TRUE)
+        #write(paste(positive.column, positive.label, coef, pval, length(positives), length(positive.clade$tip.label)), file="23a-mt-tmp.txt", sep=",", append=TRUE)
          
       }
     }
@@ -155,26 +161,29 @@ for(i in 1:nrow(valid.df)) {
 }
 valid.df$p.cat = factor(valid.df$p.cat, levels=c("**/**", "**/*", "**/-", "*/*", "*/-", "-/-"))
 g.pglm = ggplot(valid.df, aes(x=pglm.coef, y=log(-log(pglm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2) + xlim(NA,0.8)
+  geom_point() + geom_text_repel(max_overlaps=50, size=2)
 g.plm = ggplot(valid.df, aes(x=plm.coef, y=log(-log(plm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2) + xlim(NA,40)
-grid.arrange(g.pglm, g.plm, nrow=2)
+  geom_point() + geom_text_repel(max.overlaps=50, size=2)
+grid.arrange(g.pglm, g.plm)
 
 sf = 2
-png("pt-test.png", width=600*sf, height=400*sf, res=72*sf)
+png("mt-test-no-metazoa.png", width=600*sf, height=400*sf, res=72*sf)
 grid.arrange(g.pglm, g.plm)
 dev.off()
 
-#results.df[which(results.df$colname == "trophic.guild.x"),]
-#cor.plot[[9]]
-#cor.plot[[11]]
-#results.df[which(results.df$colname == "unicellularity"),]
-#cor.plot[[118]]
-#results.df[which(results.df$colname == "ecomorphological.guild"),]
-#cor.plot[[45]]
+#results.df[which(results.df$colname == "salt.tolerance"),]
+#cor.plot[[68]]
+#results.df[which(results.df$colname == "woodiness"),]
+#cor.plot[[122]]
+#results.df[which(results.df$colname == "plant.growth.form"),]
+#cor.plot[[22]]
 #results.df[which(results.df$colname == "parasiteOf"),]
-#cor.plot[[6]]
+#cor.plot[[8]]
+#results.df[which(results.df$colname == "habitat"),]
+#cor.plot[[165]]
 
-png("pt-test-specifics.png", width=600, height=400)
-grid.arrange(cor.plot[[9]], cor.plot[[11]], cor.plot[[118]], cor.plot[[45]], cor.plot[[6]], nrow=2)
+cor.plot[[48]]
+
+png("mt-test-specifics-no-metazoa.png", width=600, height=400)
+grid.arrange(cor.plot[[68]], cor.plot[[122]], cor.plot[[22]], cor.plot[[8]], cor.plot[[165]], nrow=2)
 dev.off()

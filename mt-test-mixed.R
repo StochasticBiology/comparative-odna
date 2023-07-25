@@ -14,17 +14,16 @@ convname = function(str) {
 
 # read phylogeny previously downloaded from Common Taxonomy Tree. this has previously been cleaned:
 # (i) all one line; (ii) extra set of brackets wrap the whole entity; (iii) nodes names don't contain special characters
-tree = read.newick("tree-for-traits-clean-pt.phy")
+tree = read.newick("tree-for-traits-clean-mt.phy")
 #my.correlation = corBrownian(phy=tree)
 tree$tip.label = convname(tree$tip.label)
 tree.labels = c(tree$tip.label, tree$node.label)
-# assign clade labels
 root = which(tree.labels=="Eukaryota")
 clade.refs = Children(tree, root)
 clade.names = tree.labels[clade.refs]
 
 # read Kostas' dataset
-df = read.table("PTFull22.txt", sep="\t", header=T, stringsAsFactors = TRUE)
+df = read.table("MTFull22.txt", sep="\t", header=T, stringsAsFactors = TRUE)
 
 # manually fix bugs
 df$plant.growth.form[which(df$Scientific.Name=="triodia sylvina")] = NA
@@ -34,7 +33,6 @@ df$life.cycle.habit[grep("lucilia", df$Scientific.Name)] = NA
 df$Scientific.Name = as.character(df$Scientific.Name)
 df$Ancestry = as.character(df$Ancestry)
 
-# either assign clade label to dataframe rows, or drop if not found in phylogeny
 df$clade = ""
 to.drop = c()
 for(i in 1:nrow(df)) {
@@ -70,7 +68,7 @@ for(positive.column in column.set[-not.interesting]) {
         pc.root = which(pc.labels == tree.labels[MRCA])
         positive.clade = root(positive.clade, node=pc.root)
         # now construct a dataframe for use in other approaches
-      mydf2 = data.frame(label=df$Scientific.Name, x=ifelse(df[,positive.column]==positive.label, 1, 0), y=df$countsPT)
+      mydf2 = data.frame(label=df$Scientific.Name, x=ifelse(df[,positive.column]==positive.label, 1, 0), y=df$countsMT, clade=df$clade)
         # loop through leaves in taxonomy tree
       rownames(mydf2) = mydf2$label
       mydf2 = mydf2[which(mydf2$label %in% positive.clade$tip.label),]
@@ -106,7 +104,56 @@ for(positive.column in column.set[-not.interesting]) {
           plm.coef = summary(plm)$coefficients[2,1]
           plm.pval = summary(plm)$coefficients[2,4]
         }
+          
+          # "PMIXED"
+          if(length(unique(mydf2$clade)) == 1) {
+            lmm.coef = glmm.coef = 0
+            lmm.pval = glmm.pval = 1
+            mod.lmm = lm(y ~ x, data=mydf2)
+            best.lmm = summary(mod.lmm)
+            if(nrow(best.lmm$coefficients) > 1) {
+            lmm.coef = best.lmm$coefficients[2,1]
+            lmm.pval = best.lmm$coefficients[2,4]
+            }
+            mod.glmm = glm(y ~ x, data=mydf2, family=poisson())
+            best.glmm = summary(mod.glmm)
+            if(nrow(best.glmm$coefficients) > 1) {
+              glmm.coef = best.glmm$coefficients[2,1]
+              glmm.pval = best.glmm$coefficients[2,4]
+            }
+            
+          } else {
+            ### SINGULARITY ISSUES HERE
+            tryCatch( {
+              mod.lmm = lme(y ~ x, random = ~ x | clade, data=mydf2, method="ML", control = lmeControl(msMaxIter = 1000, msMaxEval = 1000))
+              mod.lmm1 = lme(y ~ x, random = ~ 1 | clade, data=mydf2, method="ML", control = lmeControl(msMaxIter = 1000, msMaxEval = 1000))
+              if(AIC(mod.lmm) < AIC(mod.lmm1)) {
+                best.lmm = summary(mod.lmm) 
+              } else {
+                best.lmm = summary(mod.lmm1)
+              }
+              lmm.coef = best.lmm$tTable[2,1]
+              lmm.pval = best.lmm$tTable[2,5]
+            },  error = function(e) {
+              lmm.coef = 0
+              lmm.pval = 1
+            }) 
          
+            tryCatch( {
+          mod.glmm = glmer(y ~ x + (x | clade), data=mydf2, poisson)
+          mod.glmm1 = glmer(y ~ x + (1 | clade), data=mydf2, poisson)
+          if(AIC(mod.glmm) < AIC(mod.glmm1)) {
+            best.glmm = summary(mod.glmm) 
+          } else {
+            best.glmm = summary(mod.glmm1)
+          }
+          glmm.coef = best.glmm$coefficients[2,1]
+          glmm.pval = best.glmm$coefficients[2,4]
+            },  error = function(e) {
+              glmm.coef = 0
+              glmm.pval = 1
+            }) 
+          }
           
           mincount = Inf
           if(length(unique(mydf2$y[mydf2$x==1])) < 3 | length(unique(mydf2$y[mydf2$x==0])) < 3) {
@@ -122,20 +169,25 @@ for(positive.column in column.set[-not.interesting]) {
           results.df = rbind(results.df, data.frame(col=positive.column, colname=colnames(df)[positive.column],
                                                     positive.label=positive.label,pglm.coef=pglm.coef,pglm.pval=pglm.pval,
                                                     plm.coef=plm.coef,plm.pval=plm.pval,
+                                                    lmm.coef=lmm.coef,lmm.pval=lmm.pval,
+                                                    glmm.coef=glmm.coef,glmm.pval=glmm.pval,
                                                     n.positive=length(positives), clade.positive=length(positive.clade$tip.label),
                                                     mrca.positive=tree.labels[MRCA], mincount=mincount))
         write.csv(results.df, "test.csv", quote=FALSE, row.names=FALSE)
-        #write(paste(positive.column, positive.label, coef, pval, length(positives), length(positive.clade$tip.label)), file="23a-pt-tmp.txt", sep=",", append=TRUE)
+        #write(paste(positive.column, positive.label, coef, pval, length(positives), length(positive.clade$tip.label)), file="23a-mt-tmp.txt", sep=",", append=TRUE)
          
       }
     }
   }
 }
 
+results.df[!is.na(results.df$lmm.pval) & results.df$lmm.pval < 0.05/nrow(results.df),]
+results.df[!is.na(results.df$glmm.pval) & results.df$glmm.pval < 0.05/nrow(results.df),]
 
+results.df[!is.na(results.df$glmm.pval) & results.df$glmm.pval < 0.05,]
 
-valid.df = results.df[results.df$mincount > 3 & (results.df$pglm.pval < 0.05 | results.df$plm.pval < 0.05) ,]
-valid.df = results.df[results.df$mincount > 3 & results.df$n.positive > 6 & (results.df$pglm.pval < 0.05 | results.df$plm.pval < 0.05) ,]
+valid.df = results.df[results.df$mincount > 3 & (results.df$glmm.pval < 0.05 | results.df$lmm.pval < 0.05) ,]
+valid.df = results.df[results.df$mincount > 3 & results.df$n.positive > 6 & (results.df$glmm.pval < 0.05 | results.df$lmm.pval < 0.05) ,]
 
 p.label = function(p1, p2, n) {
   if(p1 < 0.05/n & p2 < 0.05/n) { return("**/**")}
@@ -151,30 +203,33 @@ valid.df$p.cat = 0
 for(i in 1:nrow(valid.df)) {
   
   valid.df$label[i] = paste(c(valid.df$colname[i], ":\n", valid.df$positive.label[i], "\n", valid.df$mrca.positive[i]), collapse="")
-  valid.df$p.cat[i] = p.label(valid.df$plm.pval[i], valid.df$pglm.pval[i], nrow(results.df))
+  valid.df$p.cat[i] = p.label(valid.df$lmm.pval[i], valid.df$glmm.pval[i], nrow(results.df))
 }
 valid.df$p.cat = factor(valid.df$p.cat, levels=c("**/**", "**/*", "**/-", "*/*", "*/-", "-/-"))
-g.pglm = ggplot(valid.df, aes(x=pglm.coef, y=log(-log(pglm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2) + xlim(NA,0.8)
-g.plm = ggplot(valid.df, aes(x=plm.coef, y=log(-log(plm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2) + xlim(NA,40)
-grid.arrange(g.pglm, g.plm, nrow=2)
+g.glmm = ggplot(valid.df, aes(x=glmm.coef, y=log(-log(glmm.pval)), label=label, color=p.cat)) + 
+  geom_point() + geom_text_repel(max_overlaps=50, size=2)
+g.lmm = ggplot(valid.df, aes(x=lmm.coef, y=log(-log(lmm.pval)), label=label, color=p.cat)) + 
+  geom_point() + geom_text_repel(max.overlaps=50, size=2)
+grid.arrange(g.glmm, g.lmm)
 
 sf = 2
-png("pt-test.png", width=600*sf, height=400*sf, res=72*sf)
-grid.arrange(g.pglm, g.plm)
+png("mt-test-mixed.png", width=600*sf, height=400*sf, res=72*sf)
+grid.arrange(g.glmm, g.lmm)
 dev.off()
 
-#results.df[which(results.df$colname == "trophic.guild.x"),]
-#cor.plot[[9]]
-#cor.plot[[11]]
-#results.df[which(results.df$colname == "unicellularity"),]
-#cor.plot[[118]]
-#results.df[which(results.df$colname == "ecomorphological.guild"),]
-#cor.plot[[45]]
+#results.df[which(results.df$colname == "salt.tolerance"),]
+#cor.plot[[68]]
+#results.df[which(results.df$colname == "woodiness"),]
+#cor.plot[[122]]
+#results.df[which(results.df$colname == "plant.growth.form"),]
+#cor.plot[[22]]
 #results.df[which(results.df$colname == "parasiteOf"),]
-#cor.plot[[6]]
+#cor.plot[[8]]
+#results.df[which(results.df$colname == "habitat"),]
+#cor.plot[[165]]
 
-png("pt-test-specifics.png", width=600, height=400)
-grid.arrange(cor.plot[[9]], cor.plot[[11]], cor.plot[[118]], cor.plot[[45]], cor.plot[[6]], nrow=2)
+cor.plot[[48]]
+
+png("mt-test-mixed-specifics.png", width=600, height=400)
+grid.arrange(cor.plot[[68]], cor.plot[[122]], cor.plot[[22]], cor.plot[[8]], cor.plot[[165]], nrow=2)
 dev.off()
