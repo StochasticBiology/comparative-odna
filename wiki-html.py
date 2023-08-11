@@ -23,7 +23,7 @@ outfilename = sys.argv[3]    # name for HTML output
 capturepattern = "("+pattern+")"
 buffer = 200                 # how many characters to present either side of match
 
-titletext = "Results for "+pattern+" in "+wikifile
+titletext = "Results for /"+pattern+"/ in "+wikifile
 print(titletext)
 
 # open Wikipedia XML
@@ -33,8 +33,10 @@ fp = open(wikifile, "r")
 outfile = open(outfilename, "w")
 
 # write HTML preamble
-outfile.write("<html><title>"+titletext+"</title><body><h1>"+titletext+"</h1>\n")
-outfile.write("<table>\n")
+outfile.write("<html>\n<head>\n<title>"+titletext+"</title>\n")
+outfile.write("<style type=\"text/css\">\nhtml * {font-family: Arial;}\ntable, th, td { border: 1px #8888FF solid; background-color: #EEEEFF; border-collapse: collapse; table-layout: fixed; word-wrap: break-word; }\n</style>\n")
+outfile.write("</head><body><h1>"+titletext+"</h1>\n")
+outfile.write("<table width='1100px'>\n")
 
 counter = 0
 # go through Wiki file lines
@@ -67,7 +69,7 @@ for line in fp.readlines():
            # add an HTML checkbox that will populate the final textbox with the text since the last quote
            tmpstr = tmpstr+tmpsubstr+"<input type='checkbox' onclick=\"document.getElementById('id"+str(counter)+"').value = document.getElementById('id"+str(counter)+"').value+'"+tmpsubstr.replace("'","").replace("<b>","").replace("</b>","")+",';\">"
        # third HTML column: text and checkboxes
-       outfile.write("<td width = '600'> "+tmpstr+" </td>")
+       outfile.write("<td width = '600px'> "+tmpstr+" </td>")
        # fourth HTML column: final textbox
        outfile.write("<td> <input type='text' id='id"+str(counter)+"'> </td></tr>\n")
        counter=counter+1
