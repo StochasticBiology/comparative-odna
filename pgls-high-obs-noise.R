@@ -3,6 +3,7 @@ library(phangorn)
 library(nlme)
 library(ggplot2)
 library(gridExtra)
+library(phylolm)
 
 # explores the power of PGLS+PGLM to find correlations under some awkward conditions
 # (i) the variables x and y are not well-behaved: x is binary and y discrete, and the rate of decrease of y depends on x
@@ -18,6 +19,7 @@ library(gridExtra)
 pvals = obs.stats = data.frame()
 expt = 0
 
+for(reversible in c(0,1)) {
 # we'll only look at one tree size here -- this structure is from other versions of the code
 for(tree.size in 2**c(8)) {
   # create balanced tree with 2^n nodes
@@ -51,8 +53,18 @@ for(tree.size in 2**c(8)) {
                 y = df$y[df$ref == i]
                 # loop over its children
                 for(j in Children(my.tree, i)) {
-                  # switch x state with some probability
-                  if(runif(1) < mean.events/tree.size | x == 1) { new.x = 1 } else { new.x = 0 }
+                  # switch x state with some probability (reversibly, if desired)
+                  new.x = x
+                  if(runif(1) < mean.events/tree.size) { 
+                    if(x==0) { 
+                      e.01 = e.01+1
+                      new.x = 1
+                    } else if(reversible == 1) {
+                      e.10 = e.10+1
+                      new.x = 0
+                    }
+                  }
+                  
                   # reduce y state by an x-dependent amount
                   if(new.x == 1) { dy = round(runif(1, min=-5-model.correlated, max=-model.correlated)) } 
                   else { dy = round(runif(1, min=-5, max=0)) } 
@@ -124,7 +136,7 @@ for(tree.size in 2**c(8)) {
             }
 
             # store p-values in a data frame
-            pvals = rbind(pvals, data.frame(tree.size=tree.size, model.correlated=model.correlated, mean.events=mean.events, 
+            pvals = rbind(pvals, data.frame(reversible=reversible, tree.size=tree.size, model.correlated=model.correlated, mean.events=mean.events, 
                                 p01=p01, p10=p10, expt=expt, basic.pval=basic.pval, pgls.pval=pgls.pval, pglm.pval=pglm.pval,
                                 plm.pval=plm.pval))
           }
@@ -132,6 +144,7 @@ for(tree.size in 2**c(8)) {
       }
     }
   }
+}
 }
 
 # for plotting, produce a label describing the observation noise for each reading
@@ -144,8 +157,9 @@ for(i in 1:nrow(pvals)) {
 # plot annotation dataframe
 label.text = data.frame(label=c("FP","TN","TP","FN"), x=c(1,1, 2.1,2.1)-0.3, y=c(5,-5,5,-5))
 
+for(this.rev in c(0,1)) {
 # PGLS performance
-g.1 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(pgls.pval)), color=noise.label)) + 
+g.1 = ggplot(pvals[pvals$reversible==this.rev & pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(pgls.pval)), color=noise.label)) + 
   geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
@@ -153,7 +167,7 @@ g.1 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLS") + labs(color="Obs error")
 
 # PGLM performance
-g.2 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(pglm.pval)), color=noise.label)) + 
+g.2 = ggplot(pvals[pvals$reversible==this.rev & pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(pglm.pval)), color=noise.label)) + 
   geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
@@ -161,7 +175,7 @@ g.2 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLM") + labs(color="Obs error")
 
 # PLM performance
-g.3 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(plm.pval)), color=noise.label)) + 
+g.3 = ggplot(pvals[pvals$reversible==this.rev & pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(plm.pval)), color=noise.label)) + 
   geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
@@ -169,7 +183,7 @@ g.3 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
   theme_light() + xlab("True effect") + ylab("log(-log(p)) PLM") + labs(color="Obs error")
 
 # naive correlation performance
-g.4 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(basic.pval)), color=noise.label)) + 
+g.4 = ggplot(pvals[pvals$reversible==this.rev & pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log10(basic.pval)), color=noise.label)) + 
   geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) +
@@ -180,38 +194,41 @@ g.4 = ggplot(pvals[pvals$p01==0,], aes(x=factor(model.correlated), y=log10(-log1
 grid.arrange(g.1, g.2, g.3, g.4, nrow=2)
 
 sf=2
-png("pgls-high-obs-noise.png", width=800*sf, height=600*sf, res=72*sf)
+fname = paste(c("pgls-high-obs-noise-rev-", this.rev, ".png"), collapse="")
+png(fname, width=800*sf, height=600*sf, res=72*sf)
 grid.arrange(g.1, g.2, g.3, g.4, nrow=2)
 dev.off()
 
 # plot a single subplot for the main text
 label.text = data.frame(label=c("FP","TN","TP","FN"), x=c(1,1, 2.1,2.1)-0.3, y=c(2.5,-2,2.5,-2))
-g1.sub = ggplot(pvals[pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.correlated), y=log10(-log10(pgls.pval)), color=noise.label)) + 
+g1.sub = ggplot(pvals[pvals$reversible==this.rev & pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.correlated), y=log10(-log10(pgls.pval)), color=noise.label)) + 
   geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) + 
   theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLS") + labs(color="Obs error")
 
-g2.sub = ggplot(pvals[pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.correlated), y=log10(-log10(pglm.pval)), color=noise.label)) + 
+g2.sub = ggplot(pvals[pvals$reversible==this.rev & pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.correlated), y=log10(-log10(pglm.pval)), color=noise.label)) + 
   geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) + 
   theme_light() + xlab("True effect") + ylab("log(-log(p)) PGLM") + labs(color="Obs error")
 
-g3.sub = ggplot(pvals[pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.correlated), y=log10(-log10(plm.pval)), color=noise.label)) + 
+g3.sub = ggplot(pvals[pvals$reversible==this.rev & pvals$p01==0 & pvals$mean.events==8,], aes(x=factor(model.correlated), y=log10(-log10(plm.pval)), color=noise.label)) + 
   geom_boxplot()+ geom_hline(yintercept=log10(-log10(0.05)), color="#888888")+ 
   geom_vline(xintercept=1.5, color="#888888")+
   geom_text(data=label.text,aes(x=x,y=y,label=label),color="#888888",size=3) + 
   theme_light() + xlab("True effect") + ylab("log(-log(p)) PLM") + labs(color="Obs error")
 
 sf=2
-png("pgls-high-obs-noise-subpanel.png", width=500*sf, height=300*sf, res=72*sf)
+fname = paste(c("pgls-high-obs-noise-subpanel-rev-", this.rev, ".png"), collapse="")
+png(fname, width=500*sf, height=300*sf, res=72*sf)
 grid.arrange(g1.sub, g2.sub, nrow=2)
 dev.off()
 
 sf=2
-png("pgls-high-obs-noise-zoom.png", width=500*sf, height=700*sf, res=72*sf)
-grid.arrange(g1.sub, g2.sub, g3.sub, nrow=3)
+fname = paste(c("pgls-high-obs-noise-zoom-rev-", this.rev, ".png"), collapse="")
+png(fname, width=500*sf, height=700*sf, res=72*sf)
+grid.arrange(g1.sub, g3.sub, g2.sub, nrow=3)
 dev.off()
 
 # summarise info on observation statistics
@@ -220,7 +237,9 @@ obs.stats$tree.size = pvals$tree.size
 
 ggplot(obs.stats, aes(x = mean.events, y=obs1/(obs0+obs1))) + geom_violin() + facet_grid(mean.events ~ tree.size)
 
-png("pgls-high-obs-noise-stats.png", width=600, height=600)
+fname = paste(c("pgls-high-obs-noise-stats-rev-", this.rev, ".png"), collapse="")
+png(fname, width=600, height=600)
 ggplot(obs.stats, aes(x = mean.events, y=obs1/(obs0+obs1))) + geom_violin() + facet_grid(mean.events ~ tree.size)
 dev.off()
 
+}
