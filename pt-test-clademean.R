@@ -162,18 +162,20 @@ valid.df$label = ""
 valid.df$p.cat = 0
 for(i in 1:nrow(valid.df)) {
   
-  valid.df$label[i] = paste(c(valid.df$colname[i], ":\n", valid.df$positive.label[i], "\n", valid.df$mrca.positive[i]), collapse="")
+  valid.df$label[i] = paste(c(valid.df$colname[i], ":\n", valid.df$positive.label[i]), collapse="")
   valid.df$p.cat[i] = p.label(valid.df$plm.pval[i], nrow(results.df))
 }
 valid.df$p.cat = factor(valid.df$p.cat, levels=c("**", "*", "-"))
 
-g.plm.clademean = ggplot(valid.df, aes(x=plm.coef, y=log(-log(plm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2) + theme_light()
-g.plm.clademean
+g.pt.plm.clademean = ggplot(valid.df, aes(x=plm.coef, y=log(-log(plm.pval)), label=label, color=p.cat)) + 
+  geom_point() + geom_text_repel(max.overlaps=50, size=3, lineheight=0.75) + 
+  theme_light() + labs(title="Shifted MT gene count PLM", x ="PLM coefficient", y = "log(-log(p))", color="p profile")
+
+g.pt.plm.clademean
 
 sf = 2
 png("pt-test-clademean.png", width=400*sf, height=300*sf, res=72*sf)
-g.plm.clademean
+g.pt.plm.clademean
 dev.off()
 
 which(results.df$colname == "locomotion")

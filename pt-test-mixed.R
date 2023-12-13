@@ -202,19 +202,21 @@ valid.df$label = ""
 valid.df$p.cat = 0
 for(i in 1:nrow(valid.df)) {
   
-  valid.df$label[i] = paste(c(valid.df$colname[i], ":\n", valid.df$positive.label[i], "\n", valid.df$mrca.positive[i]), collapse="")
+  valid.df$label[i] = paste(c(valid.df$colname[i], ":\n", valid.df$positive.label[i]), collapse="")
   valid.df$p.cat[i] = p.label(valid.df$lmm.pval[i], valid.df$glmm.pval[i], nrow(results.df))
 }
 valid.df$p.cat = factor(valid.df$p.cat, levels=c("**/**", "**/*", "**/-", "*/*", "*/-", "-/-"))
-g.glmm = ggplot(valid.df, aes(x=glmm.coef, y=log(-log(glmm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max_overlaps=50, size=2)
-g.lmm = ggplot(valid.df, aes(x=lmm.coef, y=log(-log(lmm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2)
-grid.arrange(g.glmm, g.lmm)
+g.pt.glmm = ggplot(valid.df, aes(x=glmm.coef, y=log(-log(glmm.pval)), label=label, color=p.cat)) + 
+  geom_point() + geom_text_repel(max_overlaps=50, size=3, lineheight=0.75)  +
+  theme_light() + labs(title="PT gene count PGLMM", x ="PGLMM coefficient", y = "log(-log(p))", color="p profile")
+g.pt.lmm = ggplot(valid.df, aes(x=lmm.coef, y=log(-log(lmm.pval)), label=label, color=p.cat)) + 
+  geom_point() + geom_text_repel(max.overlaps=50, size=3, lineheight=0.75)  +
+  theme_light() + labs(title="PT gene count PLMM", x ="PLMM coefficient", y = "log(-log(p))", color="p profile")
+grid.arrange(g.pt.glmm, g.pt.lmm)
 
 sf = 2
 png("pt-test-mixed.png", width=600*sf, height=400*sf, res=72*sf)
-grid.arrange(g.glmm, g.lmm)
+grid.arrange(g.pt.glmm, g.pt.lmm)
 dev.off()
 
 #results.df[which(results.df$colname == "salt.tolerance"),]
