@@ -32,7 +32,26 @@ dev.off()
 source("mt-test-clademean.R")
 source("pt-test-clademean.R")
 sf = 2
-png("odna-corrs-clademean.png", width=800*sf, height=600*sf, res=72*sf)
+png("odna-corrs-clademean.png", width=400*sf, height=400*sf, res=72*sf)
 grid.arrange(g.mt.plm.clademean, g.pt.plm.clademean, 
              nrow=2)
 dev.off()
+
+# plants phylogeny
+source("mt-test-plants.R")
+source("pt-test-plants.R")
+source("mt-test-plants-NOBL.R")
+source("pt-test-plants-NOBL.R")
+sf = 2
+png("odna-corrs-plants-mt.png", width=600*sf, height=900*sf, res=72*sf)
+grid.arrange(g.mt.plants.plm, g.mt.plants.pglm,
+             g.mt.plants.plm.nobl, g.mt.plants.pglm.nobl,
+             nrow=4)
+dev.off()
+
+png("odna-corrs-plants-pt.png", width=600*sf, height=900*sf, res=72*sf)
+grid.arrange(g.pt.plants.plm, g.pt.plants.pglm,
+g.pt.plants.plm.nobl, g.pt.plants.pglm.nobl,
+nrow=4)
+dev.off()
+
