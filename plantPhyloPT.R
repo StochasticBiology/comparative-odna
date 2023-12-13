@@ -1,12 +1,5 @@
-library(phytools)
-library(phyreg)
 library(ape)
-library(geiger)
-library(nlme)
-library(caper)
 library(stringr)
-library(data.table)
-
 library(taxizedb)
 library(U.PhyloMaker)
 
