@@ -150,21 +150,21 @@ valid.df$label = ""
 valid.df$p.cat = 0
 for(i in 1:nrow(valid.df)) {
   
-  valid.df$label[i] = paste(c(valid.df$colname[i], ":\n", valid.df$positive.label[i], "\n", valid.df$mrca.positive[i]), collapse="")
+  valid.df$label[i] = paste(c(valid.df$colname[i], ":\n", valid.df$positive.label[i]), collapse="")
   valid.df$p.cat[i] = p.label(valid.df$plm.pval[i], valid.df$pglm.pval[i], nrow(results.df))
 }
 valid.df$p.cat = factor(valid.df$p.cat, levels=c("**/**", "**/*", "**/-", "*/*", "*/-", "-/-"))
-g.pglm = ggplot(valid.df, aes(x=pglm.coef, y=log(-log(pglm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2) + xlim(NA,0.8) +
+g.pt.gene.pglm = ggplot(valid.df, aes(x=pglm.coef, y=log(-log(pglm.pval)), label=label, color=p.cat)) + 
+  geom_point() + geom_text_repel(max.overlaps=50, size=3, lineheight=0.75) + xlim(NA,0.8) +
   theme_light() + labs(title="PT gene count PGLM", x ="PGLM coefficient", y = "log(-log(p))", color="p profile")
-g.plm = ggplot(valid.df, aes(x=plm.coef, y=log(-log(plm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2) + xlim(NA,40) +
+g.pt.gene.plm = ggplot(valid.df, aes(x=plm.coef, y=log(-log(plm.pval)), label=label, color=p.cat)) + 
+  geom_point() + geom_text_repel(max.overlaps=50, size=3, lineheight=0.75) + xlim(NA,40) +
   theme_light() + labs(title="PT gene count PLM", x ="PLM coefficient", y = "log(-log(p))", color="p profile")
-grid.arrange(g.pglm, g.plm, nrow=2)
+grid.arrange(g.pt.gene.pglm, g.pt.gene.plm, nrow=2)
 
 sf = 2
 png("pt-test.png", width=600*sf, height=400*sf, res=72*sf)
-grid.arrange(g.pglm, g.plm)
+grid.arrange(g.pt.gene.pglm, g.pt.gene.plm)
 dev.off()
 
 #results.df[which(results.df$colname == "trophic.guild.x"),]
