@@ -156,19 +156,21 @@ valid.df$label = ""
 valid.df$p.cat = 0
 for(i in 1:nrow(valid.df)) {
   
-  valid.df$label[i] = paste(c(valid.df$colname[i], ":\n", valid.df$positive.label[i], "\n", valid.df$mrca.positive[i]), collapse="")
+  valid.df$label[i] = paste(c(valid.df$colname[i], ":\n", valid.df$positive.label[i], "\n"), collapse="")
   valid.df$p.cat[i] = p.label(valid.df$plm.pval[i], valid.df$pglm.pval[i], nrow(results.df))
 }
 valid.df$p.cat = factor(valid.df$p.cat, levels=c("**/**", "**/*", "**/-", "*/*", "*/-", "-/-"))
-g.pglm = ggplot(valid.df, aes(x=pglm.coef, y=log(-log(pglm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max_overlaps=50, size=2)
-g.plm = ggplot(valid.df, aes(x=plm.coef, y=log(-log(plm.pval)), label=label, color=p.cat)) + 
-  geom_point() + geom_text_repel(max.overlaps=50, size=2)
-grid.arrange(g.pglm, g.plm)
+g.mt.gene.nomet.pglm = ggplot(valid.df, aes(x=pglm.coef, y=log(-log(pglm.pval)), label=label, color=p.cat)) + 
+  geom_point() + geom_text_repel(max_overlaps=50, size=3, lineheight=0.75) +
+  theme_light() + labs(title="MT gene count PGLM", x ="PGLM coefficient", y = "log(-log(p))", color="p profile")
+g.mt.gene.nomet.plm = ggplot(valid.df, aes(x=plm.coef, y=log(-log(plm.pval)), label=label, color=p.cat)) + 
+  geom_point() + geom_text_repel(max.overlaps=50, size=3, lineheight=0.75) +
+  theme_light() + labs(title="MT gene count PLM", x ="PLM coefficient", y = "log(-log(p))", color="p profile")
+grid.arrange(g.mt.gene.nomet.pglm, g.mt.gene.nomet.plm)
 
 sf = 2
 png("mt-test-no-metazoa.png", width=600*sf, height=400*sf, res=72*sf)
-grid.arrange(g.pglm, g.plm)
+grid.arrange(g.mt.gene.nomet.pglm, g.mt.gene.nomet.plm)
 dev.off()
 
 #results.df[which(results.df$colname == "salt.tolerance"),]
