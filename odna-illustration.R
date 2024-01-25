@@ -37,11 +37,11 @@ for(label in tree$tip.label) {
 }
 
 sf=4
-png("pt-tree-fig.png", width=400*sf, height=400*sf, res=72*sf)
-ggtree(tree, layout='circular', branch.length='none', alpha=0.05) %<+% df +
+png("pt-tree-fig.png", width=1000*sf, height=1000*sf, res=72*sf)
+ggtree(tree, layout='circular', branch.length='none') %<+% df +
   geom_fruit(data = pt.counts, geom=geom_point, pwidth=0.1,
              mapping = aes(y=Label, x=Predictor, colour=Predictor), 
-             stat="identity", size=0.2) +
+             stat="identity", size=2) +
   geom_fruit(data = pt.counts, geom=geom_bar, pwidth=1.3,
              mapping = aes(y=Label, x=Count, fill=Predictor), 
              orientation="y", stat="identity", size=4) +
@@ -93,11 +93,11 @@ for(label in tree$tip.label) {
 }
 
 sf=4
-png("mt-tree-fig.png", width=400*sf, height=400*sf, res=72*sf)
-ggtree(tree, layout='circular', branch.length='none', alpha=0.05) %<+% df +
+png("mt-tree-fig-cover.png", width=1000*sf, height=1000*sf, res=72*sf)
+ggtree(tree, layout='circular', branch.length='none', size=0.8) %<+% df +
   geom_fruit(data = mt.counts, geom=geom_point, pwidth=0.1,
              mapping = aes(y=Label, x=Predictor, colour=Predictor), 
-             stat="identity", size=0.2) +
+             stat="identity", size=2) +
   geom_fruit(data = mt.counts, geom=geom_bar, pwidth=1.3,
              mapping = aes(y=Label, x=Count, fill=Predictor), 
              orientation="y", stat="identity", size=4) +
